@@ -1,9 +1,4 @@
 ﻿using Dapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Movies.Application.Database
 {
@@ -46,6 +41,20 @@ namespace Movies.Application.Database
                     name TEXT NOT NULL
                 );
             ");
+
+            // ratings
+
+            await connection.ExecuteAsync(
+                """
+                CREATE TABLE IF NOT EXISTS ratings
+                (
+                    user_id UUID,
+                    movie_id UUID NOT NULL references movies (id),
+                    rating integer not null,
+                    PRIMARY KEY (user_id, movie_id)
+                );
+                """
+                );
 
         }
     }

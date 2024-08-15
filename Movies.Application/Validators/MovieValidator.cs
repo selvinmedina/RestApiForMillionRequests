@@ -4,7 +4,7 @@ using Movies.Application.Repositories;
 
 namespace Movies.Application.Validators
 {
-    public class MovieValidator: AbstractValidator<Movie>
+    public class MovieValidator : AbstractValidator<Movie>
     {
         private readonly IMovieRepository _movieRepository;
 

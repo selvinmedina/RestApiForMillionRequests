@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Movies.Contracts.Responses;
-using System.Text.Json;
 
 namespace Movies.Api.Mapping
 {
@@ -25,7 +24,7 @@ namespace Movies.Api.Mapping
 
                 var validationFailureResponse = new ValidationFailureResponse
                 {
-                    Errors = ex.Errors 
+                    Errors = ex.Errors
                         .Select(x => new ValidationResponse
                         {
                             PropertyName = x.PropertyName,
