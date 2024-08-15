@@ -59,4 +59,22 @@ public static class ContractMapping
             Slug = rating.Slug,
         });
     }
+
+    public static GetAllMoviesOptions MapToOptions(this GetAllMoviesRequest request)
+    {
+        return new GetAllMoviesOptions
+        {
+            Title = request.Title,
+            Year = request.Year,
+            SortField = request.SortBy?.Trim('+', '-'),
+            SortOrder = request.SortBy is null? SortOrder.Unsorted 
+                        : request.SortBy?.StartsWith('-') ?? false ? SortOrder.Descending : SortOrder.Ascending
+        };
+    }
+
+    public static GetAllMoviesOptions WithUserId(this GetAllMoviesOptions options, Guid? userId)
+    {
+        options.UserId = userId;
+        return options;
+    }
 }

@@ -9,12 +9,17 @@ namespace Movies.Application.Services
         private readonly IMovieRepository _movieRepository;
         private readonly IValidator<Movie> _movieValidator;
         private readonly IRatingRepository _ratingRepository;
+        private readonly IValidator<GetAllMoviesOptions> _getAllMoviesOptionsValidator;
 
-        public MovieService(IMovieRepository movieRepository, IValidator<Movie> validator, IRatingRepository ratingRepository)
+        public MovieService(
+            IMovieRepository movieRepository, 
+            IValidator<Movie> validator, 
+            IRatingRepository ratingRepository, IValidator<GetAllMoviesOptions> getAllMoviesOptionsValidator)
         {
             _movieRepository = movieRepository;
             _movieValidator = validator;
             _ratingRepository = ratingRepository;
+            _getAllMoviesOptionsValidator = getAllMoviesOptionsValidator;
         }
 
         public async Task<bool> CreateAsync(Movie movie, Guid? userId = null, CancellationToken cancellationToken = default)
@@ -34,9 +39,11 @@ namespace Movies.Application.Services
             return _movieRepository.ExistsByIdAsync(id, cancellationToken);
         }
 
-        public Task<IEnumerable<Movie>> GetAllAsync(Guid? userId = null, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Movie>> GetAllAsync(GetAllMoviesOptions options, CancellationToken cancellationToken = default)
         {
-            return _movieRepository.GetAllAsync(userId, cancellationToken);
+            await _getAllMoviesOptionsValidator.ValidateAndThrowAsync(options, cancellationToken);
+
+            return await _movieRepository.GetAllAsync(options, cancellationToken);
         }
 
         public Task<Movie?> GetByIdAsync(Guid id, Guid? userId = null, CancellationToken cancellationToken = default)

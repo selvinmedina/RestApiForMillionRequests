@@ -88,13 +88,22 @@ public class MovieRepository : IMovieRepository
     }
 
 
-    public async Task<IEnumerable<Movie>> GetAllAsync(Guid? userId = null, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Movie>> GetAllAsync(GetAllMoviesOptions options, CancellationToken cancellationToken = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
 
         var movieDictionary = new Dictionary<Guid, Movie>();
 
-        var command = new CommandDefinition(@"
+        var orderClause = string.Empty;
+
+        if(options.SortField is not null)
+        {
+            orderClause = $"""
+                ORDER BY {options.SortField} {(options.SortOrder == SortOrder.Ascending ? "asc" : "desc")}
+                """;
+        }
+
+        var command = new CommandDefinition($"""
             SELECT 
                 m.id, 
                 m.title, 
@@ -107,9 +116,11 @@ public class MovieRepository : IMovieRepository
             LEFT JOIN genres g ON m.id = g.movie_id
             LEFT JOIN ratings r ON m.id = r.movie_id
             LEFT JOIN ratings myr ON m.id = myr.movie_id AND myr.user_id = @UserId
+            WHERE (@Title IS NULL OR m.title LIKE ('%' || @Title || '%'))
+            AND (@Year IS NULL OR m.year_of_release = @Year)
             GROUP BY m.id, m.title, m.slug, m.year_of_release, g.name, myr.rating
-            ORDER BY m.title;
-        ", new { UserId = userId }, cancellationToken: cancellationToken);
+            {orderClause};
+        """, new { options.UserId, options.Title, options.Year }, cancellationToken: cancellationToken);
 
         var movies = await connection.QueryAsync<Movie, string, Movie>(command, (movie, genre) =>
         {
