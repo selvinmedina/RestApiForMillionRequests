@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Api.Auth;
 using Movies.Api.Mapping;
@@ -6,11 +7,12 @@ using Movies.Application.Services;
 using Movies.Contracts.Requests.V1;
 using Movies.Contracts.Responses;
 
-namespace Movies.Api.Controllers.V1;
+namespace Movies.Api.Controllers;
 
 
 [ApiController]
-public class MoviesController : ControllerBase
+[ApiVersion(1.0)]
+public class MoviesController : Controller
 {
     private readonly IMovieService _movieService;
 
@@ -20,19 +22,20 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize(AuthConstants.TruestedMemberName)]
-    [HttpPost(ApiEndpoints.V1.Movies.Create)]
+    [HttpPost(ApiEndpoints.Movies.Create)]
     public async Task<IActionResult> Create([FromBody] CreateMovieRequest request, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
         var movie = request.MapToMovie();
         await _movieService.CreateAsync(movie, userId, cancellationToken);
         var movieResponse = movie.MapToResponse();
-        return CreatedAtAction(nameof(Get), new { idOrSlug = movie.Id }, movieResponse);
+        return CreatedAtAction(nameof(GetV1), new { idOrSlug = movie.Id }, movieResponse);
     }
 
     [Authorize]
-    [HttpGet(ApiEndpoints.V1.Movies.Get)]
-    public async Task<IActionResult> Get(
+    [ApiVersion(1.0, Deprecated = true)]
+    [HttpGet(ApiEndpoints.Movies.Get)]
+    public async Task<IActionResult> GetV1(
         [FromRoute] string idOrSlug,
         [FromServices] LinkGenerator linkGenerator,
         CancellationToken cancellationToken
@@ -55,7 +58,7 @@ public class MoviesController : ControllerBase
 
         response.Links.Add(new Link
         {
-            Href = linkGenerator.GetPathByAction(HttpContext, nameof(Get), values: new { idOrSlug = movie.Id })!,
+            Href = linkGenerator.GetPathByAction(HttpContext, nameof(GetV1), values: new { idOrSlug = movie.Id })!,
             Rel = "self",
             Type = "GET"
         });
@@ -78,7 +81,41 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet(ApiEndpoints.V1.Movies.GetAll)]
+    [ApiVersion(2.0)]
+    [HttpGet(ApiEndpoints.Movies.Get)]
+    public async Task<IActionResult> GetV2(
+        [FromRoute] string idOrSlug,
+        [FromServices] LinkGenerator linkGenerator,
+        CancellationToken cancellationToken
+    )
+    {
+        var userId = HttpContext.GetUserId();
+
+        var movie = Guid.TryParse(idOrSlug, out var id) ?
+            await _movieService.GetByIdAsync(id, userId, cancellationToken)
+            : await _movieService.GetBySlugAsync(idOrSlug, userId, cancellationToken);
+
+        if (movie is null)
+        {
+            return NotFound();
+        }
+
+        var response = movie.MapToResponse();
+
+        var movieObj = new { id = movie.Id };
+
+        response.Links.Add(new Link
+        {
+            Href = linkGenerator.GetPathByAction(HttpContext, nameof(GetV2), values: new { idOrSlug = movie.Id })!,
+            Rel = "self",
+            Type = "GET"
+        });
+
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet(ApiEndpoints.Movies.GetAll)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllMoviesRequest request, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
@@ -93,7 +130,7 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize(AuthConstants.TruestedMemberName)]
-    [HttpPut(ApiEndpoints.V1.Movies.Update)]
+    [HttpPut(ApiEndpoints.Movies.Update)]
     public async Task<IActionResult> Update([FromRoute] Guid id,
         [FromBody] UpdateMovieRequest request,
         CancellationToken cancellationToken)
@@ -111,7 +148,7 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize(AuthConstants.AdminPolicyName)]
-    [HttpDelete(ApiEndpoints.V1.Movies.Delete)]
+    [HttpDelete(ApiEndpoints.Movies.Delete)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
