@@ -1,4 +1,4 @@
-﻿namespace Movies.Contracts.Requests;
+﻿namespace Movies.Contracts.Requests.V1;
 
 public class CreateMovieRequest
 {
