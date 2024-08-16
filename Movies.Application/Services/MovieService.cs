@@ -12,8 +12,8 @@ namespace Movies.Application.Services
         private readonly IValidator<GetAllMoviesOptions> _getAllMoviesOptionsValidator;
 
         public MovieService(
-            IMovieRepository movieRepository, 
-            IValidator<Movie> validator, 
+            IMovieRepository movieRepository,
+            IValidator<Movie> validator,
             IRatingRepository ratingRepository, IValidator<GetAllMoviesOptions> getAllMoviesOptionsValidator)
         {
             _movieRepository = movieRepository;
@@ -81,6 +81,11 @@ namespace Movies.Application.Services
 
 
             return movie;
+        }
+
+        public Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken cancellationToken = default)
+        {
+            return _movieRepository.GetCountAsync(title, yearOfRelease, cancellationToken);
         }
     }
 }

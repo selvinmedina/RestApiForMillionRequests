@@ -96,7 +96,7 @@ public class MovieRepository : IMovieRepository
 
         var orderClause = string.Empty;
 
-        if(options.SortField is not null)
+        if (options.SortField is not null)
         {
             orderClause = $"""
                 ORDER BY {options.SortField} {(options.SortOrder == SortOrder.Ascending ? "asc" : "desc")}
@@ -119,8 +119,17 @@ public class MovieRepository : IMovieRepository
             WHERE (@Title IS NULL OR m.title LIKE ('%' || @Title || '%'))
             AND (@Year IS NULL OR m.year_of_release = @Year)
             GROUP BY m.id, m.title, m.slug, m.year_of_release, g.name, myr.rating
-            {orderClause};
-        """, new { options.UserId, options.Title, options.Year }, cancellationToken: cancellationToken);
+            {orderClause}
+            LIMIT @pageSize
+            OFFSET @pageOffset;
+        """, new
+        {
+            options.UserId,
+            options.Title,
+            options.Year,
+            pageSize = options.PageSize,
+            pageOffset = (options.Page - 1) * options.PageSize
+        }, cancellationToken: cancellationToken);
 
         var movies = await connection.QueryAsync<Movie, string, Movie>(command, (movie, genre) =>
         {
@@ -267,5 +276,18 @@ public class MovieRepository : IMovieRepository
         var result = await connection.ExecuteScalarAsync<int>(command);
 
         return result > 0;
+    }
+
+    public async Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken cancellationToken = default)
+    {
+        using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        var command = new CommandDefinition(@"
+            SELECT COUNT(id)
+            FROM movies
+            WHERE (@Title IS NULL OR title LIKE ('%' || @Title || '%'))
+            AND (@Year IS NULL OR year_of_release = @Year);
+        ", new { Title = title, Year = yearOfRelease }, cancellationToken: cancellationToken);
+
+        return await connection.QuerySingleAsync<int>(command);
     }
 }

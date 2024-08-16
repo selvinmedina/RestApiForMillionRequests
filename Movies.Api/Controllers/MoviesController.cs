@@ -4,6 +4,7 @@ using Movies.Api.Auth;
 using Movies.Api.Mapping;
 using Movies.Application.Services;
 using Movies.Contracts.Requests;
+using Movies.Contracts.Responses;
 
 namespace Movies.Api.Controllers;
 
@@ -31,7 +32,11 @@ public class MoviesController : ControllerBase
 
     [Authorize]
     [HttpGet(ApiEndpoints.Movies.Get)]
-    public async Task<IActionResult> Get([FromRoute] string idOrSlug, CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(
+        [FromRoute] string idOrSlug,
+        [FromServices] LinkGenerator linkGenerator,
+        CancellationToken cancellationToken
+        )
     {
         var userId = HttpContext.GetUserId();
 
@@ -45,6 +50,30 @@ public class MoviesController : ControllerBase
         }
 
         var response = movie.MapToResponse();
+
+        var movieObj = new { id = movie.Id };
+
+        response.Links.Add(new Link
+        {
+            Href = linkGenerator.GetPathByAction(HttpContext, nameof(Get), values: new { idOrSlug = movie.Id })!,
+            Rel = "self",
+            Type = "GET"
+        });
+
+        response.Links.Add(new Link
+        {
+            Href = linkGenerator.GetPathByAction(HttpContext, nameof(Update), values: movieObj)!,
+            Rel = "update",
+            Type = "PUT"
+        });
+
+        response.Links.Add(new Link
+        {
+            Href = linkGenerator.GetPathByAction(HttpContext, nameof(Delete), values: movieObj)!,
+            Rel = "delete",
+            Type = "DELETE"
+        });
+
         return Ok(response);
     }
 
@@ -55,9 +84,11 @@ public class MoviesController : ControllerBase
         var userId = HttpContext.GetUserId();
         var options = request.MapToOptions()
                              .WithUserId(userId);
-        var movies = await _movieService.GetAllAsync(options, cancellationToken);
 
-        var moviesResponse = movies.MapToResponse();
+        var movies = await _movieService.GetAllAsync(options, cancellationToken);
+        var movieCount = await _movieService.GetCountAsync(request.Title, request.Year, cancellationToken);
+
+        var moviesResponse = movies.MapToResponse(request.Page, request.PageSize, movieCount);
         return Ok(moviesResponse);
     }
 
