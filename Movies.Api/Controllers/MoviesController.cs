@@ -24,8 +24,8 @@ public class MoviesController : Controller
         _outputCacheStore = outputCacheStore;
     }
 
-    //[Authorize(AuthConstants.TruestedMemberName)]
-    [ServiceFilter(typeof(ApiKeyAuthFilter))]
+    [Authorize(AuthConstants.TruestedMemberName)]
+    //[ServiceFilter(typeof(ApiKeyAuthFilter))]
     [HttpPost(ApiEndpoints.Movies.Create)]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
@@ -43,7 +43,7 @@ public class MoviesController : Controller
         return CreatedAtAction(nameof(GetV1), new { idOrSlug = movie.Id }, movieResponse);
     }
 
-    //[Authorize]
+    [Authorize]
     //[ApiVersion(1.0, Deprecated = true)]
     [HttpGet(ApiEndpoints.Movies.Get)]
     [OutputCache]
@@ -132,7 +132,7 @@ public class MoviesController : Controller
         return Ok(response);
     }
 
-    //[Authorize]
+    [Authorize]
     [HttpGet(ApiEndpoints.Movies.GetAll)]
     //[ResponseCache(
     //    Duration = 60, 
