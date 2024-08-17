@@ -34,9 +34,15 @@ public class MoviesController : Controller
         return CreatedAtAction(nameof(GetV1), new { idOrSlug = movie.Id }, movieResponse);
     }
 
-    [Authorize]
-    [ApiVersion(1.0, Deprecated = true)]
+    //[Authorize]
+    //[ApiVersion(1.0, Deprecated = true)]
     [HttpGet(ApiEndpoints.Movies.Get)]
+    [ResponseCache(
+        Duration = 60, 
+        VaryByQueryKeys =  new[] {"title", "year", "sortBy", "page", "pageSize"}, 
+        VaryByHeader = "Accept, Accept-Enconding", 
+        Location = ResponseCacheLocation.Any
+        )]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetV1(
@@ -84,9 +90,10 @@ public class MoviesController : Controller
         return Ok(response);
     }
 
-    [Authorize]
+    //[Authorize]
     [ApiVersion(2.0)]
     [HttpGet(ApiEndpoints.Movies.Get)]
+    [ResponseCache(Duration = 30, VaryByHeader = "Accept, Accept-Enconding", Location = ResponseCacheLocation.Any)]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetV2(

@@ -53,6 +53,7 @@ builder.Services.AddApiVersioning(x =>
 
 }).AddMvc().AddApiExplorer();
 
+builder.Services.AddResponseCaching();
 
 builder.Services.AddControllers();
 
@@ -84,6 +85,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+//app.UseCors();
+app.UseResponseCaching();
 
 app.UseMiddleware<ValidationMappingMiddleware>();
 app.MapControllers();
