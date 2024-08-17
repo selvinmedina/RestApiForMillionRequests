@@ -30,7 +30,8 @@ namespace Movies.Api.Endpoints.Movies
                     movieCount);
 
                 return TypedResults.Ok(moviesResponse);
-            });
+            })
+                .WithName(Name);
 
             return app;
         }

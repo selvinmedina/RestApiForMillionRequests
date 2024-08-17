@@ -21,7 +21,9 @@ namespace Movies.Api.Endpoints.Ratings
                 var success = await ratingService.RateMovieAsync(movieId, userId!.Value, request.Rating, cancellationToken);
 
                 return success ? Results.Ok() : Results.BadRequest();
-            });
+            })
+                .WithName(Name)
+                .RequireAuthorization();
         }
     }
 }

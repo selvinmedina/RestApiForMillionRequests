@@ -33,7 +33,7 @@ namespace Movies.Api.Endpoints.Movies
                  return TypedResults.CreatedAtRoute(response, GetMovieEndpoint.Name, new { idOrSlug = movie.Id });
              })
              .WithName(Name)
-             .AllowAnonymous();
+             .RequireAuthorization(AuthConstants.TruestedMemberName);
 
             return app;
         }
