@@ -23,6 +23,8 @@ public class MoviesController : Controller
 
     [Authorize(AuthConstants.TruestedMemberName)]
     [HttpPost(ApiEndpoints.Movies.Create)]
+    [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateMovieRequest request, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
@@ -35,6 +37,8 @@ public class MoviesController : Controller
     [Authorize]
     [ApiVersion(1.0, Deprecated = true)]
     [HttpGet(ApiEndpoints.Movies.Get)]
+    [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetV1(
         [FromRoute] string idOrSlug,
         [FromServices] LinkGenerator linkGenerator,
@@ -83,6 +87,8 @@ public class MoviesController : Controller
     [Authorize]
     [ApiVersion(2.0)]
     [HttpGet(ApiEndpoints.Movies.Get)]
+    [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetV2(
         [FromRoute] string idOrSlug,
         [FromServices] LinkGenerator linkGenerator,
@@ -116,6 +122,7 @@ public class MoviesController : Controller
 
     [Authorize]
     [HttpGet(ApiEndpoints.Movies.GetAll)]
+    [ProducesResponseType(typeof(MoviesResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllMoviesRequest request, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
@@ -131,6 +138,8 @@ public class MoviesController : Controller
 
     [Authorize(AuthConstants.TruestedMemberName)]
     [HttpPut(ApiEndpoints.Movies.Update)]
+    [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update([FromRoute] Guid id,
         [FromBody] UpdateMovieRequest request,
         CancellationToken cancellationToken)
@@ -149,6 +158,8 @@ public class MoviesController : Controller
 
     [Authorize(AuthConstants.AdminPolicyName)]
     [HttpDelete(ApiEndpoints.Movies.Delete)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var userId = HttpContext.GetUserId();
