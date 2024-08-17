@@ -39,7 +39,8 @@ namespace Movies.Api.Endpoints.Movies
              .WithName(Name)
              .Produces<MovieResponse>(StatusCodes.Status200OK)
              .Produces(StatusCodes.Status404NotFound)
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .CacheOutput("MovieCache");
 
             return app;
         }

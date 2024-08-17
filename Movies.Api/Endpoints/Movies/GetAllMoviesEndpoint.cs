@@ -35,7 +35,8 @@ namespace Movies.Api.Endpoints.Movies
                 .Produces<MoviesResponse>(StatusCodes.Status200OK)
                 .WithName($"{Name}/V1")
                 .WithApiVersionSet(ApiVersioning.VersionSet)
-                .HasApiVersion(1.0);
+                .HasApiVersion(1.0)
+                .CacheOutput("MovieCache");
 
             app.MapGet(ApiEndpoints.Movies.GetAll, async (
                 [AsParameters] GetAllMoviesRequest request,
@@ -61,7 +62,8 @@ namespace Movies.Api.Endpoints.Movies
                 .Produces<MoviesResponse>(StatusCodes.Status200OK)
                 .WithName($"{Name}/V2")
                 .WithApiVersionSet(ApiVersioning.VersionSet)
-                .HasApiVersion(2.0);
+                .HasApiVersion(2.0)
+                .CacheOutput("MovieCache");
 
             return app;
         }
