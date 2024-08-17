@@ -1,6 +1,7 @@
 ﻿using Movies.Api.Auth;
 using Movies.Api.Mapping;
 using Movies.Application.Services;
+using Movies.Contracts.Responses;
 
 namespace Movies.Api.Endpoints.Movies
 {
@@ -36,6 +37,8 @@ namespace Movies.Api.Endpoints.Movies
                  return TypedResults.Ok(response);
              })
              .WithName(Name)
+             .Produces<MovieResponse>(StatusCodes.Status200OK)
+             .Produces(StatusCodes.Status404NotFound)
              .AllowAnonymous();
 
             return app;

@@ -26,7 +26,9 @@ namespace Movies.Api.Endpoints.Movies
                 return Results.Ok();
             })
                 .WithName(Name)
-                .RequireAuthorization(AuthConstants.TruestedMemberName); ;
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound)
+                .RequireAuthorization(AuthConstants.TruestedMemberName);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Movies.Api.Mapping;
 using Movies.Application.Services;
 using Movies.Contracts.Requests.V1;
+using Movies.Contracts.Responses;
 
 namespace Movies.Api.Endpoints.Movies
 {
@@ -31,6 +32,7 @@ namespace Movies.Api.Endpoints.Movies
 
                 return TypedResults.Ok(moviesResponse);
             })
+                .Produces<MoviesResponse>(StatusCodes.Status200OK)
                 .WithName(Name);
 
             return app;

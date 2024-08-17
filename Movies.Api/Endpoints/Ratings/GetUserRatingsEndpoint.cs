@@ -1,5 +1,6 @@
 ﻿using Movies.Api.Auth;
 using Movies.Api.Mapping;
+using Movies.Application.Models;
 using Movies.Application.Services;
 
 namespace Movies.Api.Endpoints.Ratings
@@ -21,6 +22,7 @@ namespace Movies.Api.Endpoints.Ratings
                 return Results.Ok(ratings.MapToResponse());
             })
                 .WithName(Name)
+                .Produces<IEnumerable<MovieRating>>(StatusCodes.Status200OK)
                 .RequireAuthorization();
         }
     }

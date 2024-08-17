@@ -23,6 +23,8 @@ namespace Movies.Api.Endpoints.Ratings
                 return success ? Results.Ok() : Results.BadRequest();
             })
                 .WithName(Name)
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest)
                 .RequireAuthorization();
         }
     }

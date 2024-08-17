@@ -3,6 +3,7 @@ using Movies.Api.Auth;
 using Movies.Api.Mapping;
 using Movies.Application.Services;
 using Movies.Contracts.Requests.V1;
+using Movies.Contracts.Responses;
 
 namespace Movies.Api.Endpoints.Movies
 {
@@ -33,6 +34,8 @@ namespace Movies.Api.Endpoints.Movies
                  return TypedResults.CreatedAtRoute(response, GetMovieEndpoint.Name, new { idOrSlug = movie.Id });
              })
              .WithName(Name)
+             .Produces<MovieResponse>(StatusCodes.Status201Created)
+             .Produces<ValidationFailureResponse>(StatusCodes.Status400BadRequest)
              .RequireAuthorization(AuthConstants.TruestedMemberName);
 
             return app;
