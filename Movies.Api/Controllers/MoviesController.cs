@@ -33,13 +33,13 @@ public class MoviesController : Controller
     {
         var userId = HttpContext.GetUserId();
         var movie = request.MapToMovie();
-        
+
         await _movieService.CreateAsync(movie, userId, cancellationToken);
-        
+
         await _outputCacheStore.EvictByTagAsync("movies", cancellationToken);
-        
+
         var movieResponse = movie.MapToResponse();
-        
+
         return CreatedAtAction(nameof(GetV1), new { idOrSlug = movie.Id }, movieResponse);
     }
 
@@ -151,7 +151,7 @@ public class MoviesController : Controller
         var movies = await _movieService.GetAllAsync(options, cancellationToken);
         var movieCount = await _movieService.GetCountAsync(request.Title, request.Year, cancellationToken);
 
-        var moviesResponse = movies.MapToResponse(request.Page, request.PageSize, movieCount);
+        var moviesResponse = movies.MapToResponse(request.Page.GetValueOrDefault(PagedRequest.DefaultPageSize), request.PageSize.GetValueOrDefault(PagedRequest.DefaultPageSize), movieCount);
         return Ok(moviesResponse);
     }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Movies.Api.Auth;
+using Movies.Api.Endpoints;
 using Movies.Api.Health;
 using Movies.Api.Mapping;
 using Movies.Api.Swagger;
@@ -71,8 +72,6 @@ builder.Services.AddOutputCache(x =>
     });
 });
 
-builder.Services.AddControllers();
-
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>(DatabaseHealthCheck.Name);
 
@@ -87,7 +86,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(x=>
+    app.UseSwaggerUI(x =>
     {
         foreach (var description in app.DescribeApiVersions())
         {
@@ -107,7 +106,7 @@ app.UseAuthorization();
 app.UseOutputCache();
 
 app.UseMiddleware<ValidationMappingMiddleware>();
-app.MapControllers();
+app.MapApiEndpints();
 
 var dbInitialzer = app.Services.GetRequiredService<DbInitializer>();
 await dbInitialzer.InitializeAsync();
