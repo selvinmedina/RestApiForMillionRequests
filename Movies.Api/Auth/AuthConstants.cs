@@ -8,5 +8,7 @@
         public const string TruestedMemberName = "Trusted";
         public const string TruestedMemberClaimName = "trusted_member";
 
+        public const string ApiKeyHeaderName = "X-Api-Key";
+
     }
 }
